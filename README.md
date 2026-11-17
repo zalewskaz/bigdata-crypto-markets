@@ -2,13 +2,13 @@
 
 ## Description of goals and benefit
 
-**Goal:** a system that ingests a real-time stream of cryptocurrency trades and enriches it with traditional market data collected in batches, stores both in a batch layer and generates analytical views answering the question: *how do traditional market conditions relate to cryptocurrency prices, volatility and trading activity?*
+**Goal:** creating a system for analyzing cryptocurrency trades in the context of traditional asset prices and trends, answering the question: *how do cryptocurrency prices, volatility and trading activity relate to traditional market conditions?* The system will ingest a real-time stream of cryptocurrency trades and enrich it with traditional market data collected in batches, storing both in a batch layer and generating analytical views based on the accumulated data. It will collect and process large amounts of data, which is crucial for market data analysis, as it allows for capturing the long-term trends originating from millions of individual transactions; the sheer velocity of transactions being made on international markets at any given moment makes this problem one for which big data systems are a necessary solution. 
 
 **Benefits:**
-- shows whether cryptocurrencies rise and fall together with the stock market and gold, or follow their own path,
-- shows how much riskier cryptocurrencies are compared to traditional investments,
-- shows how cryptocurrencies behave when the US central bank changes interest rates,
-- gives quick access to ready-made results without recalculating the data.
+- showing whether cryptocurrencies rise and fall together with the stock market and gold, or follow their own path,
+- showing how much more volatile (thus, riskier) cryptocurrencies are compared to traditional investments,
+- showing how cryptocurrency trades shift when the US Federal Reserve changes interest rates,
+- giving quick access to ready-made results without recalculating the data.
 
 ## Description of datasets (volume, type, store and refresh strategy)
 
@@ -16,8 +16,8 @@ Two sources: **Coinbase** (cryptocurrencies BTC and ETH) and **Alpha Vantage** (
 
 | Dataset | Source | Type | Format | Volume | Refresh |
 |---|---|---|---|---|---|
-| Crypto trades | Coinbase WebSocket (`matches`) | stream | JSON |  | continuous |
-| Crypto daily prices | Coinbase REST (`candles`) | batch | JSON |  | one-off backfill + daily |
+| Cryptocurrency trades | Coinbase WebSocket (`matches`) | stream | JSON |  | continuous |
+| Cryptocurrency daily prices | Coinbase REST (`candles`) | batch | JSON |  | one-off backfill + daily |
 | Stock and gold prices (QQQ, SPY, GLD) | Alpha Vantage (`TIME_SERIES_WEEKLY`, `TIME_SERIES_DAILY`) | batch | JSON |  | weekly history one-off, then daily |
 | Fed interest rate | Alpha Vantage (`FEDERAL_FUNDS_RATE`) | batch | JSON |  | daily |
 
