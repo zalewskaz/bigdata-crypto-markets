@@ -2,13 +2,12 @@
 
 ## Description of goals and benefit
 
-**Goal:** creating a system for analyzing cryptocurrency trades in the context of traditional asset prices and trends, answering the question: *how do cryptocurrency prices, volatility and trading activity relate to traditional market conditions?* The system will ingest a real-time stream of cryptocurrency trades and enrich it with traditional market data collected in batches, storing both in a batch layer and generating analytical views based on the accumulated data. It will collect and process large amounts of data, which is crucial for market data analysis, as it allows for capturing the long-term trends originating from millions of individual transactions; the sheer velocity of transactions being made on international markets at any given moment makes this problem one for which big data systems are a necessary solution. 
+Creating a system for analyzing cryptocurrency trades in the context of traditional asset prices and trends, answering the question: *how do cryptocurrency prices, volatility and trading activity relate to traditional market conditions?* The system will ingest a real-time stream of cryptocurrency trades and enrich it with traditional market data collected in batches, storing both in a batch layer and generating analytical views based on the accumulated data. It will collect and process large amounts of data, which is crucial for market data analysis, as it allows for capturing the long-term trends originating from millions of individual transactions; the sheer velocity of transactions being made on international markets at any given moment makes this problem one for which big data systems are a necessary solution. Thus, the main benefit of the system is giving quick access to ready-made results without recalculating the data.
 
-**Benefits:**
-- showing whether cryptocurrencies rise and fall together with the stock market and gold, or follow their own path,
+**Potential use cases:**
+- Showing whether cryptocurrencies rise and fall together with the stock market and gold, or follow their own path,
 - showing how much more volatile (thus, riskier) cryptocurrencies are compared to traditional investments,
-- showing how cryptocurrency trades shift when the US Federal Reserve changes interest rates,
-- giving quick access to ready-made results without recalculating the data.
+- showing how cryptocurrency trades shift when the US Federal Reserve changes interest rates. 
 
 ## Description of datasets (volume, type, store and refresh strategy)
 
