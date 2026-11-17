@@ -14,12 +14,12 @@
 
 Two sources: **Coinbase** (cryptocurrencies BTC and ETH) and **Alpha Vantage** (traditional markets). Common analysis period: **from 2017-01-01**.
 
-| Dataset | Source | Type | Format | Volume | Refresh |
-|---|---|---|---|---|---|
-| Cryptocurrency trades | Coinbase WebSocket (`matches`) | stream | JSON |  | continuous |
-| Cryptocurrency daily prices | Coinbase REST (`candles`) | batch | JSON |  | one-off backfill + daily |
-| Stock and gold prices (QQQ, SPY, GLD) | Alpha Vantage (`TIME_SERIES_WEEKLY`, `TIME_SERIES_DAILY`) | batch | JSON |  | weekly history one-off, then daily |
-| Fed interest rate | Alpha Vantage (`FEDERAL_FUNDS_RATE`) | batch | JSON |  | daily |
+| Dataset | Source | Type | Format | Volume | Refresh | Estimated Volume |
+|---|---|---|---|---|---|---|
+| Cryptocurrency trades | Coinbase WebSocket (`matches`) | stream | JSON |  | continuous | 400 000 - 700 000 records (both assets combined, per day) |
+| Cryptocurrency daily prices | Coinbase REST (`candles`) | batch | JSON |  | one-off backfill + daily | 3500 records (per asset) |
+| Stock and gold prices (QQQ, SPY, GLD) | Alpha Vantage (`TIME_SERIES_WEEKLY`, `TIME_SERIES_DAILY`) | batch | JSON |  | weekly history one-off, then daily | 600 records (per asset) |
+| Fed interest rate | Alpha Vantage (`FEDERAL_FUNDS_RATE`) | batch | JSON |  | daily | 3500 records |
 
 **Attributes**
 
