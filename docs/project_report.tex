@@ -1,0 +1,464 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{longtable,booktabs,array}
+\usepackage{caption}
+\captionsetup[table]{skip=6pt}
+\newcounter{none} % for unnumbered tables
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+% fallback for those not using the hyperref driver hyperxmp:
+\makeatletter
+\@ifundefined{xmpquote}{\newcommand{\xmpquote}[1]{#1}}{}
+\makeatother
+\hypersetup{
+  pdftitle={Cryptocurrencies and Traditional Markets},
+  pdfauthor={Hanna Szczerbińska; Zuzanna Zalewska},
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Cryptocurrencies and Traditional Markets}
+\author{Hanna Szczerbińska \and Zuzanna Zalewska}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+{
+\hypersetup{linkcolor=black}
+\setcounter{tocdepth}{2}
+\tableofcontents
+\clearpage
+}
+\section{Description of goals and benefit}\label{description-of-goals-and-benefit}
+
+Creating a system for analyzing cryptocurrency trades in the context of traditional asset prices and trends, answering the question: \emph{how do cryptocurrency prices, volatility and trading activity relate to traditional market conditions?} The system will ingest a real-time stream of cryptocurrency trades and enrich it with traditional market data collected in batches, storing both in a batch layer and generating analytical views based on the accumulated data. It will collect and process large amounts of data, which is crucial for market data analysis, as it allows for capturing the long-term trends originating from millions of individual transactions; the sheer velocity of transactions being made on international markets at any given moment makes this problem one for which big data systems are a necessary solution. Thus, the main benefit of the system is giving quick access to ready-made results without recalculating the data.
+
+\subsection{Potential use cases}\label{potential-use-cases}
+
+\begin{itemize}
+\tightlist
+\item
+  showing whether cryptocurrencies rise and fall together with the stock market and gold, or follow their own path,
+\item
+  showing how much more volatile (thus, riskier) cryptocurrencies are compared to traditional investments,
+\item
+  showing how cryptocurrency trades shift when the US Federal Reserve changes interest rates.
+\end{itemize}
+
+\section{Description of datasets}\label{description-of-datasets}
+
+\subsection{Sources and volume}\label{sources-and-volume}
+
+Two sources: \textbf{Coinbase} (cryptocurrencies BTC and ETH; \url{https://docs.cdp.coinbase.com/exchange}) and \textbf{Alpha Vantage} (traditional markets; \url{https://www.alphavantage.co/documentation/}). These two sources differ mainly in how the data arrives. Trades come as a continuous stream of small JSON messages, several hundred thousand per day, while prices and the interest rate are downloaded in batches. The batch data covers the period from 2017-01-01, whereas the trade stream has no history and is collected only from the moment the system is started, so trade-level analyses (hourly statistics) cover only the period in which the system is running. Table~\ref{tbl-datasets} summarizes all four datasets.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Dataset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Source
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Format
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Refresh
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Estimated Volume
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Dataset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Source
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Format
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Refresh
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Estimated Volume
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\caption{Datasets used in the project.}\label{tbl-datasets}\tabularnewline
+\endlastfoot
+Cryptocurrency trades & Coinbase WebSocket (\texttt{matches}) & stream & JSON & continuous & 400 000 - 700 000 records (both assets combined, per day) \\
+\midrule\noalign{}
+Cryptocurrency daily prices & Coinbase REST (\texttt{candles}) & batch & JSON & one-off backfill + daily & 3500 records (per asset) \\
+\midrule\noalign{}
+Stock and gold prices (QQQ, SPY, GLD) & Alpha Vantage (\texttt{TIME\_\allowbreak{}SERIES\_\allowbreak{}WEEKLY}, \texttt{TIME\_\allowbreak{}SERIES\_\allowbreak{}DAILY}) & batch & JSON & weekly history one-off, then daily & 600 records (per asset) \\
+\midrule\noalign{}
+Fed interest rate & Alpha Vantage (\texttt{FEDERAL\_\allowbreak{}FUNDS\_\allowbreak{}RATE}) & batch & JSON & daily & 3500 records \\
+\end{longtable}
+
+\subsection{Attributes}\label{attributes}
+
+Each dataset has a fixed set of attributes, described below together with example values taken from API responses.
+
+The most detailed dataset is the trade stream, in which every record describes a single trade executed on Coinbase (Table~\ref{tbl-trades}). It is the only dataset available at the level of single trades, so it is the basis for the hourly statistics and for measuring trading activity.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Attribute
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Example
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Attribute
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Example
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\caption{Attributes of crypto trades.}\label{tbl-trades}\tabularnewline
+\endlastfoot
+\texttt{trade\_\allowbreak{}id} & integer & trade identifier, unique within a pair & \texttt{1121905539} \\
+\midrule\noalign{}
+\texttt{product\_\allowbreak{}id} & string & trading pair & \texttt{BTC-\allowbreak{}USD} \\
+\midrule\noalign{}
+\texttt{price} & decimal & trade price in USD & \texttt{68879.\allowbreak{}56} \\
+\midrule\noalign{}
+\texttt{size} & decimal & traded amount in BTC / ETH & \texttt{0.\allowbreak{}00071857} \\
+\midrule\noalign{}
+\texttt{side} & string & side of the order waiting in the order book: \texttt{sell} means the trade was initiated by a buyer, \texttt{buy} means it was initiated by a seller & \texttt{sell} \\
+\midrule\noalign{}
+\texttt{sequence} & integer & message sequence number, used to detect gaps and duplicates & \texttt{139314503178} \\
+\midrule\noalign{}
+\texttt{time} & timestamp (UTC) & trade time, microsecond precision & \texttt{2026-\allowbreak{}11-\allowbreak{}13T17:\allowbreak{}59:\allowbreak{}48.\allowbreak{}591157Z} \\
+\end{longtable}
+
+Daily prices summarize all trades of one pair in a single day as a so called candle: the opening, highest, lowest and closing price, together with the traded volume (Table~\ref{tbl-crypto-daily}).
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Attribute
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Example
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Attribute
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Example
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\caption{Attributes of crypto daily prices.}\label{tbl-crypto-daily}\tabularnewline
+\endlastfoot
+\texttt{product\_\allowbreak{}id} & string & trading pair (added during ingestion) & \texttt{BTC-\allowbreak{}USD} \\
+\midrule\noalign{}
+\texttt{time} & integer (Unix time, UTC) & start of the day & \texttt{1483228800} (2017-01-01) \\
+\midrule\noalign{}
+\texttt{low} & decimal & lowest price of the day in USD & \texttt{964.\allowbreak{}37} \\
+\midrule\noalign{}
+\texttt{high} & decimal & highest price of the day in USD & \texttt{1000.\allowbreak{}00} \\
+\midrule\noalign{}
+\texttt{open} & decimal & first price of the day in USD & \texttt{973.\allowbreak{}37} \\
+\midrule\noalign{}
+\texttt{close} & decimal & last price of the day in USD & \texttt{992.\allowbreak{}95} \\
+\midrule\noalign{}
+\texttt{volume} & decimal & traded amount in BTC / ETH & \texttt{4421.\allowbreak{}50} \\
+\end{longtable}
+
+Stock and gold prices have the same structure, but they describe exchange-traded funds (Table~\ref{tbl-market}). They are the traditional market benchmarks against which the behavior of cryptocurrencies is compared.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Attribute
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Example
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Attribute
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Example
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\caption{Attributes of stock and gold prices.}\label{tbl-market}\tabularnewline
+\endlastfoot
+\texttt{symbol} & string & exchange-traded fund: \texttt{QQQ} (Nasdaq-100 index), \texttt{SPY} (S\&P 500 index), \texttt{GLD} (gold price) & \texttt{SPY} \\
+\midrule\noalign{}
+\texttt{date} & date (New York time) & trading day; for weekly data, the last trading day of the week & \texttt{2026-\allowbreak{}11-\allowbreak{}12} \\
+\midrule\noalign{}
+\texttt{open} & decimal & opening price in USD & \texttt{753.\allowbreak{}98} \\
+\midrule\noalign{}
+\texttt{high} & decimal & highest price in USD & \texttt{763.\allowbreak{}04} \\
+\midrule\noalign{}
+\texttt{low} & decimal & lowest price in USD & \texttt{753.\allowbreak{}67} \\
+\midrule\noalign{}
+\texttt{close} & decimal & closing price in USD & \texttt{757.\allowbreak{}12} \\
+\midrule\noalign{}
+\texttt{volume} & integer & number of shares traded & \texttt{37460594} \\
+\end{longtable}
+
+The simplest dataset is the effective federal funds rate, with one value per day (Table~\ref{tbl-fed}). The rate changes rarely, but every change affects all markets at once, which makes it a natural reference point for comparing how cryptocurrencies and traditional assets react to the same event.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Attribute
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Example
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Attribute
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Example
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\caption{Attributes of the Fed interest rate.}\label{tbl-fed}\tabularnewline
+\endlastfoot
+\texttt{date} & date & day & \texttt{2026-\allowbreak{}11-\allowbreak{}11} \\
+\midrule\noalign{}
+\texttt{value} & decimal & effective federal funds rate, \% per year & \texttt{3.\allowbreak{}88} \\
+\end{longtable}
+
+\subsection{Joining the datasets and API limits}\label{joining-the-datasets-and-api-limits}
+
+The datasets are joined by date. Coinbase reports time in UTC and Alpha Vantage in New York time, so both are unified to a common date during processing. Days without a stock market session, such as weekends and holidays, are filled with the last known value. Coinbase requires no API key, while Alpha Vantage requires a free API key and allows 25 requests per day. Free daily stock prices cover only the last 100 days, which is why the stock history in Table~\ref{tbl-datasets} is based on weekly prices.
+
+\subsection{Storage strategy}\label{storage-strategy}
+
+On its way through the system the data passes four storage layers, each with a different role (Table~\ref{tbl-storage}). Kafka holds incoming records only for a short time, the raw zone in HDFS keeps an unchanged copy of everything that was received, the batch layer contains cleaned data ready for analysis, and HBase serves the final results. Because each layer is built from the previous one, any of them can be recreated when a processing step changes.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Layer
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Technology
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Format / structure
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Purpose
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Layer
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Technology
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Format / structure
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Purpose
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\caption{Storage layers.}\label{tbl-storage}\tabularnewline
+\endlastfoot
+Buffer & Apache Kafka & topics: \texttt{crypto\_\allowbreak{}trades}, \texttt{crypto\_\allowbreak{}prices}, \texttt{market\_\allowbreak{}data}, \texttt{dlq} & trades keep arriving while HDFS writes are slow or restarted; \texttt{dlq} (dead letter queue) keeps invalid records, e.g.~an Alpha Vantage limit message instead of data, for later inspection \\
+\midrule\noalign{}
+Raw data & HDFS & Avro, \texttt{/\allowbreak{}data/\allowbreak{}raw/\allowbreak{}<source>/\allowbreak{}<yyyy-\allowbreak{}mm-\allowbreak{}dd>/\allowbreak{}} & the batch layer can be rebuilt after a processing bug, because live trades cannot be fetched again and the Alpha Vantage request limit makes reloading the history slow; Avro (row-based) fits records written one by one \\
+\midrule\noalign{}
+Batch layer & HDFS + Apache Hive & Parquet; \texttt{trades} (partitioned by pair, day), \texttt{crypto\_\allowbreak{}daily}, \texttt{market\_\allowbreak{}weekly}, \texttt{market\_\allowbreak{}daily}, \texttt{fed\_\allowbreak{}rate} & Spark jobs read only the needed columns (e.g.~\texttt{price}, \texttt{size}, \texttt{time}) of millions of trades and skip partitions of other pairs and days \\
+\midrule\noalign{}
+Serving layer & Apache HBase & \texttt{daily\_\allowbreak{}view} (key \texttt{yyyymmdd}), \texttt{correlations} (key \texttt{pair\#\allowbreak{}asset\#\allowbreak{}window\#\allowbreak{}date}), \texttt{hourly\_\allowbreak{}stats} (key \texttt{pair\#\allowbreak{}yyyymmddhh}) & the notebook reads ready results for a given day, pair or hour without running Spark \\
+\end{longtable}
+
+\section{Description of the planned architecture}\label{description-of-the-planned-architecture}
+
+\subsection{Overview}\label{overview}
+
+The system follows the batch and serving layers of the Lambda architecture (Figure~\ref{fig-architecture}). Data from the three sources is collected by NiFi, buffered in Kafka and stored in HDFS and Hive. Spark then turns the stored data into batch views, which are written to HBase and visualized in Jupyter notebooks.
+
+\begin{figure}
+\centering
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio,alt={Planned architecture of the system.}]{diagram1.png}
+\caption{Planned architecture of the system.}\label{fig-architecture}
+\end{figure}
+
+\subsection{Technologies}\label{technologies}
+
+Each technology in this chain has a clearly separated responsibility (Table~\ref{tbl-technologies}). NiFi is the only component that communicates with the external APIs, Spark is the only one that transforms the data after it has been stored, and the remaining tools buffer, store or serve the data. The whole system runs locally in Docker Compose. Every component (NiFi flows, Kafka topics, Spark jobs, Hive and HBase tables) will be covered by functional tests describing the goal, the steps, the expected result and the confirmation of the result (log or screenshot).
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Technology
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Role
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Technology
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Role
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\caption{Technologies and their roles.}\label{tbl-technologies}\tabularnewline
+\endlastfoot
+Apache NiFi & WebSocket stream ingestion, scheduled REST requests (Alpha Vantage limit control), JSON flattening, time zone unification, validation, Avro conversion, routing invalid records to \texttt{dlq}; moving data from Kafka to the raw zone in HDFS \\
+\midrule\noalign{}
+Apache Kafka & buffering of streaming and batch data between ingestion and writing to HDFS \\
+\midrule\noalign{}
+HDFS + Apache Hive & HDFS stores raw data (Avro files in directories per source and day) and cleaned data; Hive defines partitioned tables only over the cleaned Parquet data \\
+\midrule\noalign{}
+Apache Spark & conversion of raw Avro data into cleaned Parquet tables; aggregation of trades into hourly and daily statistics, joining by date, rolling correlations, volatility; writing batch views to HBase \\
+\midrule\noalign{}
+Apache HBase & serving batch views with random reads by key \\
+\midrule\noalign{}
+Jupyter & visualization of the batch views read from HBase \\
+\midrule\noalign{}
+Docker Compose & local runtime environment \\
+\end{longtable}
+
+\end{document}
